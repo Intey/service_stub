@@ -1,0 +1,101 @@
+---
+swagger: "2.0"
+info:
+  description: "внутренне API проекта"
+  version: "0.1.0"
+  title: "Decreeser Private API"
+basePath: "/api"
+paths:
+  /extract:
+    post:
+      summary: "Извлечение меток из заявления"
+      description: "Запрос для извлечения меток из документа"
+      operationId: "extract_post"
+      parameters:
+      - in: "body"
+        name: "text"
+        description: "Текст заявления"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        200:
+          description: "список меток в документе"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Entity"
+        204:
+          description: "сущностей в документе не найдено"
+        400:
+          description: "нет текста"
+      x-swagger-router-controller: "swagger_server.controllers.default_controller"
+  /decreeses:
+    post:
+      summary: "Получение похожих приказов"
+      description: "Запрос приказов которые содержат подходящие сущности в своем ш\
+        аблоне, которые подойдут для заполнения"
+      operationId: "decreeses_post"
+      parameters:
+      - in: "body"
+        name: "text"
+        description: "Текст заявления"
+        required: true
+        schema:
+          type: "string"
+      responses:
+        200:
+          description: "список подходящих шаблонов приказов"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/inline_response_200"
+        400:
+          description: "в запросе нет сущностей или они содержат ошибки"
+      x-swagger-router-controller: "swagger_server.controllers.default_controller"
+definitions:
+  Entity:
+    required:
+    - "end_position"
+    - "entity_name"
+    - "start_position"
+    properties:
+      entity_name:
+        type: "string"
+        description: "название сущности, к которой относится метка."
+      start_position:
+        type: "integer"
+        description: "абсолютная стартовая позиция в тексте."
+      end_position:
+        type: "integer"
+        description: "абсолютная окончательная позиция в тексте."
+    example:
+      start_position: 0
+      entity_name: "entity_name"
+      end_position: 6
+  inline_response_200:
+    required:
+    - "content"
+    properties:
+      name:
+        type: "string"
+        description: "Название шаблона приказа"
+      content:
+        type: "string"
+        description: "текст шаблона"
+      entities:
+        type: "array"
+        description: "список сущностей, которые нужны для полного заполнения докум\
+          ента"
+        items:
+          $ref: "#/definitions/Entity"
+    example:
+      entities:
+      - start_position: 0
+        entity_name: "entity_name"
+        end_position: 6
+      - start_position: 0
+        entity_name: "entity_name"
+        end_position: 6
+      name: "name"
+      content: "content"
